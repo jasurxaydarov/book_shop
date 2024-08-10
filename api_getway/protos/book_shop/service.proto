@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package book_shop;
+option go_package = "genproto/book_shop";
+import "messages.proto";
+
+service User_service {
+    rpc CreateUser (UserCreateReq) returns (User);
+    rpc GetUser(GetByIdReq)returns(User);
+    rpc GetUsers(GetListReq)returns(UserGetListResp);
+    rpc UpdateUser(UserUpdateReq)returns (User);
+    rpc DeleteUser(DeleteReq)returns(Empty);
+
+}
+
+service Category_service{
+    rpc CreateCategory (CategoryCreateReq) returns (Category);
+    rpc GetCategory(GetByIdReq)returns(Category);
+    rpc GetCategories(GetListReq)returns(CategoryGetListResp);
+    rpc UpdateCategory(CategoryUpdateReq)returns (Category);
+    rpc DeleteCategory(DeleteReq)returns(Empty);
+
+}
+
+service Book_service {
+    rpc CreateBook (BookCreateReq) returns (Book);
+    rpc GetBook(GetByIdReq)returns(Book);
+    rpc GetBooks(GetListReq)returns(BookGetListResp);
+    rpc UpdateBook(BookUpdateReq)returns (Book);
+    rpc DeleteBook(DeleteReq)returns(Empty);
+}
+
+service Order_service {
+    rpc CreateOrder (OrderCreateReq) returns (Order);
+    rpc GetBook(GetByIdReq)returns(Order);
+    rpc GetBooks(GetListReq)returns(OrderGetListResp);
+    rpc UpdateBook(OrderUpdateReq)returns (Order);
+    rpc DeleteBook(DeleteReq)returns(Empty);
+}
+
+service OrderedItem_service {
+    rpc CreateBook (OrderItemCreateReq) returns (OrderItem);
+    rpc GetBook(GetByIdReq)returns(OrderItem);
+    rpc GetBooks(GetListReq)returns(OrderItemGetListResp);
+    rpc DeleteBook(DeleteReq)returns(Empty);
+}
+
