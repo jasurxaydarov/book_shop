@@ -4,18 +4,18 @@ import (
 	"context"
 	"log"
 
-	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/v5"
 	"github.com/jasurxaydarov/book_shop/config"
 )
 
-func ConnDB(ctx context.Context) (*pgx.Conn, error) {
+func ConnDB(ctx context.Context)(*pgx.Conn,error){
 
-	PgxConn, err := pgx.Connect(ctx, config.GetPgURL())
+	PgxConn,err:=pgx.Connect(ctx,config.GetPgURL())
 
-	if err != nil {
+	if err!= nil{
 
 		log.Println(err)
-		return nil, err
+		return nil,err
 	}
-	return PgxConn, err
+	return PgxConn,err
 }

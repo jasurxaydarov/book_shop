@@ -7,20 +7,20 @@ import (
 )
 
 type StorageRepoI interface{
-	GetCategoryRepo()postgres.CategoryRepoI
+	GetBookRepo()postgres.BookRepoI
 }
 
 type storageRepo struct{
-	categoryRepo postgres.CategoryRepoI
+	bookRepo postgres.BookRepoI
 }
 
-func NewCategoryRepo(db *pgx.Conn,log logger.LoggerI)StorageRepoI{
+func NewBookRepo(db *pgx.Conn,log logger.LoggerI)StorageRepoI{
 
-	return &storageRepo{categoryRepo: postgres.NewCategoryRepo(db,log)}
+	return &storageRepo{bookRepo: postgres.NewBookRepo(db,log)}
 }
 
 
-func (s *storageRepo)GetCategoryRepo()postgres.CategoryRepoI{
+func (s *storageRepo)GetBookRepo()postgres.BookRepoI{
 
-	return s.categoryRepo
+	return s.bookRepo
 }

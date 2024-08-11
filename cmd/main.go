@@ -26,11 +26,11 @@ func main() {
 
 	fmt.Println(pgxConn)
 
-	storage:=storage.NewCategoryRepo(pgxConn,log)
+	storage:=storage.NewBookRepo(pgxConn,log)
 
-	service:=service.NewCategoryService(storage)
+	service:=service.NewBookService(storage)
 
-	listen,err:=net.Listen("tcp","localhost:8002")
+	listen,err:=net.Listen("tcp","localhost:8003")
 
 	if err != nil {
 		fmt.Println(err)
@@ -39,9 +39,9 @@ func main() {
 
 	server:=grpc.NewServer()
 
-	book_shop.RegisterCategoryServiceServer(server,service)
+	book_shop.RegisterBookServiceServer(server,service)
 
-	log.Debug("server serve on :8002")
+	log.Debug("server serve on :8003")
 
 	if err =server.Serve(listen);err!=nil{
 		log.Error(err.Error())

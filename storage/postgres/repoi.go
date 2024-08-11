@@ -6,8 +6,8 @@ import (
 	"github.com/jasurxaydarov/book_shop/genproto/book_shop"
 )
 
-type CategoryRepoI interface {
-	CreateCategory(ctx context.Context, req *book_shop.CategoryCreateReq) (*book_shop.Category, error)
-	GetCategoryById(ctx context.Context, req *book_shop.GetByIdReq) (*book_shop.Category, error)
+type BookRepoI interface {
+	CreateBook(ctx context.Context, req *book_shop.BookCreateReq) (*book_shop.Book, error)
+	GetBookById(ctx context.Context, req *book_shop.GetByIdReq) (*book_shop.Book, error)
 }
  
