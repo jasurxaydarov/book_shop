@@ -17,11 +17,7 @@ CREATE TABLE users (
 
 
 
-CREATE TABLE authors (
-    author_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(100) NOT NULL,
-    bio TEXT
-);
+
 
 CREATE TABLE categories (
     category_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

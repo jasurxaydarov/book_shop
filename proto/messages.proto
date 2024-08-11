@@ -1,0 +1,197 @@
+syntax="proto3";
+
+package book_shop;
+
+option go_package ="genproto/book_shop";
+
+message Empthy{}
+
+
+message DeleteReq{
+    string user_id = 1;
+}
+
+message GetByIdReq{
+    string user_id = 1;
+}
+
+message GetListReq{
+    int32 limit = 1;
+    int32 page = 2;
+}
+
+message User{
+    string user_id = 1;
+    string username = 2;
+    string email = 3;
+    string password = 4;
+    string fullname = 5;
+    bool   is_admin = 6 [default = false];
+    string created_at = 7;
+    string updated_at = 8;
+    string deleted_at = 9;
+}
+
+
+message UserCreateReq{
+    string username = 1;
+    string email = 2;
+    string password = 3;
+    string fullname = 4;
+    bool   is_admin = 5 [default = false];
+}
+
+
+
+message UserGetListResp{
+    repeated User users = 2;
+    int32 count = 1;
+}
+
+
+
+message UserUpdateReq{
+    string username = 1;
+    string email = 2;
+    string password = 3;
+    string fullname = 4;
+    bool   is_admin = 5 [default = false];
+    string updated_at = 6;
+}
+
+
+message Author {
+
+    string author_id = 1;
+    string author_name = 2;
+    string bio = 3;
+    
+}
+
+
+message AuthorGetListResp{
+    int32 count = 1;
+    repeated Author author = 2;
+  
+}
+
+
+
+message AuthorUpdateReq{
+    string author_name = 1;
+    string bio = 2;
+}
+
+
+
+
+message Category {
+    string category_id = 1;
+    string category_name = 2;
+    string discription = 3;
+    string created_at = 4;
+    string updated_at = 5;
+    string deleted_at = 6;
+    
+    
+}
+
+
+
+
+message CategoryGetListResp{
+    int32 count = 1;
+    repeated Category category = 2;
+  
+}
+
+
+
+message CategoryUpdateReq{
+    string category_name = 1;
+    string discription = 2;
+}
+
+
+
+message Book {
+    string book_id = 1;         // UUID as string
+    string title = 2;           // VARCHAR(255)
+    string author_id = 3;       // UUID as string
+    string category_id = 4;     // UUID as string
+    double price = 5;           // DECIMAL(10, 2)
+    int32 stock = 6;            // INT
+    string description = 7;     // TEXT
+    string published_date = 8;  // DATE as string (ISO 8601 format)
+    string created_at = 9;      // TIMESTAMP as string (ISO 8601 format)
+    string updated_at = 10;     // TIMESTAMP as string (ISO 8601 format)
+    string deleted_at = 11;     // TIMESTAMP as string (ISO 8601 format)
+}
+
+
+
+
+
+message BookGetListResp {
+    
+   repeated Book book = 1;
+   int32 count = 2;
+}
+
+
+message BookUpdateReq {
+    string title = 1;           // VARCHAR(255)
+    string author_id = 2;       // UUID as string
+    string category_id = 3;     // UUID as string
+    double price = 4;           // DECIMAL(10, 2)
+    int32 stock = 5;            // INT
+    string description = 6;     // TEXT
+    string published_date = 7;  // DATE as string (ISO 8601 format)
+    string updated_at = 8;     // TIMESTAMP as string (ISO 8601 format)
+
+}
+
+message Order {
+    string order_id = 1;        // UUID as string
+    string user_id = 2;         // UUID as string
+    double total_amount = 3;    // DECIMAL(10, 2)
+    string order_status = 4;    // VARCHAR(50)
+    string created_at = 5;      // TIMESTAMP as string (ISO 8601 format)
+    string deleted_at = 6;      // TIMESTAMP as string (ISO 8601 format)
+}
+
+
+
+message OrderUpdateReq {
+    string user_id = 1;         // UUID as string
+    double total_amount = 2;    // DECIMAL(10, 2)
+    string order_status = 3;    // VARCHAR(50)
+}
+
+message OrderGetListResp {
+    repeated Order order = 1;
+    int32 count = 2;
+}
+
+
+
+message OrderItem {
+    string order_item_id = 1;   // UUID as string
+    string order_id = 2;        // UUID as string
+    string book_id = 3;         // UUID as string
+    int32 quantity = 4;         // INT
+    double price = 5;           // DECIMAL(10, 2)
+    string deleted_at = 6;      // TIMESTAMP as string (ISO 8601 format)
+}
+
+message OrderItemCreateReq {
+    string order_id = 1;        // UUID as string
+    string book_id = 2;         // UUID as string
+    int32 quantity = 3;         // INT
+    double price = 4;           // DECIMAL(10, 2)
+}
+
+message OrderItemGetListResp {
+    repeated OrderItem order_item = 1;
+    int32 count = 2;
+}
