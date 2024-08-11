@@ -24,6 +24,16 @@ func Api(o Options) *gin.Engine {
 		us.POST("/user", h.CreateUser)
 		us.GET("/user/:id", h.GetUserById)
 
+		//order
+		us.POST("/order", h.CreateOrder)
+		us.GET("/order/:id", h.GetOrderById)
+
+		//orderItem
+		us.POST("/order_item", h.CreateOrderItem)
+		us.GET("/order_item/:id", h.GetOrderItemById)
+		us.GET("/order_item_id/:id", h.GetOrderItemById)
+
+
 	}
 
 	adm := api.Group("/adm")

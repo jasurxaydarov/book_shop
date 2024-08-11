@@ -1,0 +1,3 @@
+[submodule "order_item_service/protos"]
+	path = order_item_service/protos
+	url = https://github.com/jasurxaydarov/protos.git
