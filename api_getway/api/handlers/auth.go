@@ -15,7 +15,7 @@ func (h *Handler) CreateAuth(ctx *gin.Context) {
 
 	ctx.BindJSON(&req)
 
-	resp, err := h.service.GetAuthService().CreateAuth(context.Background(), &req)
+	resp, err := h.service.GetProductSevice().CreateAuth(context.Background(), &req)
 
 	if err != nil {
 
@@ -36,7 +36,7 @@ func (h *Handler) GetAuthById(ctx *gin.Context) {
 
 	req.Id = ctx.Param("id")
 
-	resp, err := h.service.GetAuthService().GetAuth(context.Background(), &req)
+	resp, err := h.service.GetProductSevice().GetAuth(context.Background(), &req)
 
 	if err != nil {
 		ctx.JSON(500, err)

@@ -12,7 +12,7 @@ func (h *Handler) CreateOrderItem(ctx *gin.Context) {
 
 	ctx.BindJSON(&req)
 
-	resp, err := h.service.GetOrderItemService().CreateOrdered_Item(context.Background(), &req)
+	resp, err := h.service.GetProductSevice().CreateOrdered_Item(context.Background(), &req)
 
 	if err != nil {
 		ctx.JSON(500, err)
@@ -29,7 +29,7 @@ func (h *Handler) GetOrderItemById(ctx *gin.Context) {
 
 	req.Id = ctx.Param("id")
 
-	resp, err := h.service.GetOrderItemService().GetOrdered_Item(context.Background(), &req)
+	resp, err := h.service.GetProductSevice().GetOrdered_Item(context.Background(), &req)
 
 	if err != nil {
 		ctx.JSON(500, err)
@@ -46,7 +46,7 @@ func (h *Handler) GetOrderItemByOrderId(ctx *gin.Context) {
 
 	req.Id = ctx.Param("id")
 
-	resp, err := h.service.GetOrderItemService().GetOrdered_ItemByOrderId(context.Background(), &req)
+	resp, err := h.service.GetProductSevice().GetOrdered_ItemByOrderId(context.Background(), &req)
 
 	if err != nil {
 		ctx.JSON(500, err)

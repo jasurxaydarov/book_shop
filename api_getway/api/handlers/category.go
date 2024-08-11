@@ -12,7 +12,7 @@ func (h *Handler) CreateCategory(ctx *gin.Context) {
 
 	ctx.BindJSON(&req)
 
-	resp, err := h.service.GetCategoryService().CreateCategory(context.Background(), &req)
+	resp, err := h.service.GetProductSevice().CreateCategory(context.Background(), &req)
 
 	if err != nil {
 		h.log.Error(err.Error())
@@ -30,7 +30,7 @@ func (h *Handler) GetCategoryById(ctx *gin.Context) {
 
 	req.Id = ctx.Param("id")
 
-	resp, err := h.service.GetCategoryService().GetCategory(context.Background(), &req)
+	resp, err := h.service.GetProductSevice().GetCategory(context.Background(), &req)
 
 	if err != nil {
 		ctx.JSON(500, err)

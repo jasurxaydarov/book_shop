@@ -14,7 +14,7 @@ func (h *Handler) CreateBook(ctx *gin.Context) {
 
 	ctx.BindJSON(&req)
 
-	resp, err := h.service.GetBookService().CreateBook(context.Background(), &req)
+	resp, err := h.service.GetProductSevice().CreateBook(context.Background(), &req)
 
 	if err != nil {
 		h.log.Error("err on  GetBookService().CreateBook", logger.Error(err))
@@ -31,7 +31,7 @@ func (h *Handler) GetBookById(ctx *gin.Context) {
 
 	req.Id = ctx.Param("id")
 
-	resp, err := h.service.GetBookService().GetBook(context.Background(), &req)
+	resp, err := h.service.GetProductSevice().GetBook(context.Background(), &req)
 
 	if err != nil {
 		ctx.JSON(500, err)
