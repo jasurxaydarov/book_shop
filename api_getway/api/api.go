@@ -14,7 +14,7 @@ type Options struct {
 
 func Api(o Options) *gin.Engine {
 
-	h := handlers.NewHandlers(o.Service,o.Log)
+	h := handlers.NewHandlers(o.Service, o.Log)
 
 	engine := gin.Default()
 
@@ -28,11 +28,18 @@ func Api(o Options) *gin.Engine {
 		us.POST("/order", h.CreateOrder)
 		us.GET("/order/:id", h.GetOrderById)
 
+		us.GET("/book/:id", h.GetBookById)
+		
+		//Author
+		us.GET("/auth/:id", h.GetAuthById)
+
+		// book
+		us.GET("/book/:id", h.GetBookById)
+
 		//orderItem
 		us.POST("/order_item", h.CreateOrderItem)
 		us.GET("/order_item/:id", h.GetOrderItemById)
 		us.GET("/order_item_id/:id", h.GetOrderItemById)
-
 
 	}
 
