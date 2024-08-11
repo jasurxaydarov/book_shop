@@ -8,12 +8,41 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+func Service() ServiceManagerI {
+
+	userService, err := grpc.NewClient("localhost:8000", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	authService, err := grpc.NewClient("localhost:8001", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	categoryService, err := grpc.NewClient("localhost:8002", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	bookService, err := grpc.NewClient("localhost:8003", grpc.WithTransportCredentials(insecure.NewCredentials()))
+
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	serviseManager := &serviceManager{
+		userService: book_shop.NewUserServiceClient(userService),
+		authService: book_shop.NewAuthServiceClient(authService),
+		categoryService: book_shop.NewCategoryServiceClient(categoryService),
+		bookService: book_shop.NewBookServiceClient(bookService),
+	}
+
+	return serviseManager
+}
+
 type ServiceManagerI interface {
 	GetUserSevice() book_shop.UserServiceClient
+	GetAuthService() book_shop.AuthServiceClient
+	GetCategoryService() book_shop.CategoryServiceClient
+	GetBookService() book_shop.BookServiceClient
+
 }
 
 type serviceManager struct {
-	userService book_shop.UserServiceClient
+	userService     book_shop.UserServiceClient
+	authService     book_shop.AuthServiceClient
+	categoryService book_shop.CategoryServiceClient
+	bookService 	book_shop.BookServiceClient
 }
 
 func (s *serviceManager) GetUserSevice() book_shop.UserServiceClient {
@@ -21,16 +50,17 @@ func (s *serviceManager) GetUserSevice() book_shop.UserServiceClient {
 	return s.userService
 }
 
-func Service() ServiceManagerI {
+func (s *serviceManager) GetAuthService() book_shop.AuthServiceClient {
 
-	userService, err := grpc.NewClient("localhost:8000", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	return s.authService
+}
 
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
+func (s *serviceManager) GetCategoryService() book_shop.CategoryServiceClient{
 
-	serviseManager := &serviceManager{userService: book_shop.NewUserServiceClient(userService)}
+	return s.categoryService
+}
 
-	return serviseManager
+func (s *serviceManager) GetBookService() book_shop.BookServiceClient{
+
+	return s.bookService
 }

@@ -7,15 +7,15 @@ import (
 	"github.com/jasurxaydarov/book_shop/genproto/book_shop"
 )
 
-func (h *Handler) CreateUser(ctx *gin.Context) {
-
-	var req book_shop.UserCreateReq
+func (h *Handler) CreateCategory(ctx *gin.Context) {
+	var req book_shop.CategoryCreateReq
 
 	ctx.BindJSON(&req)
 
-	resp, err := h.service.GetUserSevice().CreateUser(context.Background(), &req)
+	resp, err := h.service.GetCategoryService().CreateCategory(context.Background(), &req)
 
 	if err != nil {
+		h.log.Error(err.Error())
 		ctx.JSON(500, err)
 		return
 	}
@@ -24,13 +24,13 @@ func (h *Handler) CreateUser(ctx *gin.Context) {
 
 }
 
-func (h *Handler) GetUserById(ctx *gin.Context) {
+func (h *Handler) GetCategoryById(ctx *gin.Context) {
 
 	var req book_shop.GetByIdReq
 
 	req.Id = ctx.Param("id")
 
-	resp, err := h.service.GetUserSevice().GetUser(context.Background(), &req)
+	resp, err := h.service.GetCategoryService().GetCategory(context.Background(), &req)
 
 	if err != nil {
 		ctx.JSON(500, err)

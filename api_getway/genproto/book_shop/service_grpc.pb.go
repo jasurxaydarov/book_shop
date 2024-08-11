@@ -248,6 +248,236 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 	Metadata: "service.proto",
 }
 
+// AuthServiceClient is the client API for AuthService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type AuthServiceClient interface {
+	CreateAuth(ctx context.Context, in *AuthorUpdateReq, opts ...grpc.CallOption) (*Author, error)
+	GetAuth(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*Author, error)
+	GetAuths(ctx context.Context, in *GetListReq, opts ...grpc.CallOption) (*AuthorGetListResp, error)
+	UpdateAuth(ctx context.Context, in *AuthorUpdateReq, opts ...grpc.CallOption) (*User, error)
+	DeleteAuth(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error)
+}
+
+type authServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewAuthServiceClient(cc grpc.ClientConnInterface) AuthServiceClient {
+	return &authServiceClient{cc}
+}
+
+func (c *authServiceClient) CreateAuth(ctx context.Context, in *AuthorUpdateReq, opts ...grpc.CallOption) (*Author, error) {
+	out := new(Author)
+	err := c.cc.Invoke(ctx, "/book_shop.Auth_service/CreateAuth", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) GetAuth(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*Author, error) {
+	out := new(Author)
+	err := c.cc.Invoke(ctx, "/book_shop.Auth_service/GetAuth", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) GetAuths(ctx context.Context, in *GetListReq, opts ...grpc.CallOption) (*AuthorGetListResp, error) {
+	out := new(AuthorGetListResp)
+	err := c.cc.Invoke(ctx, "/book_shop.Auth_service/GetAuths", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) UpdateAuth(ctx context.Context, in *AuthorUpdateReq, opts ...grpc.CallOption) (*User, error) {
+	out := new(User)
+	err := c.cc.Invoke(ctx, "/book_shop.Auth_service/UpdateAuth", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) DeleteAuth(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/book_shop.Auth_service/DeleteAuth", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// AuthServiceServer is the server API for AuthService service.
+// All implementations must embed UnimplementedAuthServiceServer
+// for forward compatibility
+type AuthServiceServer interface {
+	CreateAuth(context.Context, *AuthorUpdateReq) (*Author, error)
+	GetAuth(context.Context, *GetByIdReq) (*Author, error)
+	GetAuths(context.Context, *GetListReq) (*AuthorGetListResp, error)
+	UpdateAuth(context.Context, *AuthorUpdateReq) (*User, error)
+	DeleteAuth(context.Context, *DeleteReq) (*Empty, error)
+	mustEmbedUnimplementedAuthServiceServer()
+}
+
+// UnimplementedAuthServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedAuthServiceServer struct {
+}
+
+func (UnimplementedAuthServiceServer) CreateAuth(context.Context, *AuthorUpdateReq) (*Author, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateAuth not implemented")
+}
+func (UnimplementedAuthServiceServer) GetAuth(context.Context, *GetByIdReq) (*Author, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAuth not implemented")
+}
+func (UnimplementedAuthServiceServer) GetAuths(context.Context, *GetListReq) (*AuthorGetListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAuths not implemented")
+}
+func (UnimplementedAuthServiceServer) UpdateAuth(context.Context, *AuthorUpdateReq) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAuth not implemented")
+}
+func (UnimplementedAuthServiceServer) DeleteAuth(context.Context, *DeleteReq) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAuth not implemented")
+}
+func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
+
+// UnsafeAuthServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AuthServiceServer will
+// result in compilation errors.
+type UnsafeAuthServiceServer interface {
+	mustEmbedUnimplementedAuthServiceServer()
+}
+
+func RegisterAuthServiceServer(s grpc.ServiceRegistrar, srv AuthServiceServer) {
+	s.RegisterService(&AuthService_ServiceDesc, srv)
+}
+
+func _AuthService_CreateAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuthorUpdateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).CreateAuth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Auth_service/CreateAuth",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).CreateAuth(ctx, req.(*AuthorUpdateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_GetAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetByIdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).GetAuth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Auth_service/GetAuth",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).GetAuth(ctx, req.(*GetByIdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_GetAuths_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).GetAuths(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Auth_service/GetAuths",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).GetAuths(ctx, req.(*GetListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_UpdateAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuthorUpdateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).UpdateAuth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Auth_service/UpdateAuth",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).UpdateAuth(ctx, req.(*AuthorUpdateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_DeleteAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).DeleteAuth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Auth_service/DeleteAuth",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).DeleteAuth(ctx, req.(*DeleteReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var AuthService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "book_shop.Auth_service",
+	HandlerType: (*AuthServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateAuth",
+			Handler:    _AuthService_CreateAuth_Handler,
+		},
+		{
+			MethodName: "GetAuth",
+			Handler:    _AuthService_GetAuth_Handler,
+		},
+		{
+			MethodName: "GetAuths",
+			Handler:    _AuthService_GetAuths_Handler,
+		},
+		{
+			MethodName: "UpdateAuth",
+			Handler:    _AuthService_UpdateAuth_Handler,
+		},
+		{
+			MethodName: "DeleteAuth",
+			Handler:    _AuthService_DeleteAuth_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "service.proto",
+}
+
 // CategoryServiceClient is the client API for CategoryService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
