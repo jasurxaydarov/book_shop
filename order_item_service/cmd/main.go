@@ -26,28 +26,27 @@ func main() {
 
 	fmt.Println(pgxConn)
 
-	storage:=storage.NewOrderRepo(pgxConn,log)
+	storage := storage.NewOrderedItemRepo(pgxConn, log)
 
-	service:=service.NewOrderService(storage)
+	service := service.NewOrderedItemService(storage)
 
-	listen,err:=net.Listen("tcp","localhost:8004")
+	listen, err := net.Listen("tcp", "localhost:8005")
 
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	server:=grpc.NewServer()
+	server := grpc.NewServer()
 
-	book_shop.RegisterOrderServiceServer(server,service)
+	book_shop.RegisterOrderedItemServiceServer(server, service)
 
-	log.Debug("server serve on :8004")
+	log.Debug("server serve on :8005")
 
-	if err =server.Serve(listen);err!=nil{
+	if err = server.Serve(listen); err != nil {
 		log.Error(err.Error())
-		return 
+		return
 
 	}
 
-	log.Debug("hhhhhhhhhh")
 }

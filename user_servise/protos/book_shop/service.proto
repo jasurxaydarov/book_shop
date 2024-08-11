@@ -41,16 +41,18 @@ service Book_service {
 
 service Order_service {
     rpc CreateOrder (OrderCreateReq) returns (Order);
-    rpc GetBook(GetByIdReq)returns(Order);
-    rpc GetBooks(GetListReq)returns(OrderGetListResp);
-    rpc UpdateBook(OrderUpdateReq)returns (Order);
-    rpc DeleteBook(DeleteReq)returns(Empty);
+    rpc GetOrder(GetByIdReq)returns(Order);
+    rpc GetOrders(GetListReq)returns(OrderGetListResp);
+    rpc Updateorder(OrderUpdateReq)returns (Order);
+    rpc DeleteOrder(DeleteReq)returns(Empty);
 }
 
 service OrderedItem_service {
-    rpc CreateBook (OrderItemCreateReq) returns (OrderItem);
-    rpc GetBook(GetByIdReq)returns(OrderItem);
-    rpc GetBooks(GetListReq)returns(OrderItemGetListResp);
-    rpc DeleteBook(DeleteReq)returns(Empty);
+    rpc CreateOrdered_Item (OrderItemCreateReq) returns (OrderItem);
+    rpc GetOrdered_Item(GetByIdReq)returns(OrderItem);
+    rpc GetOrdered_ItemByOrderId(GetByIdReq)returns(OrderItemGetListResp);
+    rpc GetOrdered_Items(GetListReq)returns(OrderItemGetListResp);
+    rpc UpdateOrdered_Item (OrderItemCreateReq) returns (OrderItem);
+    rpc DeleteOrdered_Item(DeleteReq)returns(Empty);
 }
 

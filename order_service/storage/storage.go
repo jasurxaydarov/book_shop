@@ -7,20 +7,20 @@ import (
 )
 
 type StorageRepoI interface{
-	GetBookRepo()postgres.BookRepoI
+	GetOrderRepo()postgres.OrderRepoI
 }
 
 type storageRepo struct{
-	bookRepo postgres.BookRepoI
+	ordeRepo postgres.OrderRepoI
 }
 
-func NewBookRepo(db *pgx.Conn,log logger.LoggerI)StorageRepoI{
+func NewOrderRepo(db *pgx.Conn,log logger.LoggerI)StorageRepoI{
 
-	return &storageRepo{bookRepo: postgres.NewBookRepo(db,log)}
+	return &storageRepo{ordeRepo: postgres.NewOrderRepo(db,log)}
 }
 
 
-func (s *storageRepo)GetBookRepo()postgres.BookRepoI{
+func (s *storageRepo)GetOrderRepo()postgres.OrderRepoI{
 
-	return s.bookRepo
+	return s.ordeRepo
 }

@@ -9,95 +9,86 @@ import (
 	"github.com/saidamir98/udevs_pkg/logger"
 )
 
-type BookRepo struct {
+type orderRepo struct {
 	db  *pgx.Conn
 	log logger.LoggerI
 }
 
-func NewBookRepo(db *pgx.Conn, log logger.LoggerI) BookRepoI {
+func NewOrderRepo(db *pgx.Conn, log logger.LoggerI) OrderRepoI {
 
-	return &BookRepo{db: db, log: log}
+	return &orderRepo{db: db, log: log}
 }
 
-func (b *BookRepo) CreateBook(ctx context.Context, req *book_shop.BookCreateReq) (*book_shop.Book, error) {
+func (o *orderRepo) CreateOrder(ctx context.Context, req *book_shop.OrderCreateReq) (*book_shop.Order, error) {
 	id := uuid.New()
 
 	query := `
 		INSERT INTO
-			books(
-			 	book_id,
-				title,
-				author_id,
-				category_id,
-				price,
-				stock,
-				description
+			orders(
+				order_id,
+				user_id,
+				total_amount,
+				order_status 
 			)VALUES(
-				$1,$2,$3,$4,$5,$6,$7
+				$1,$2,$3,$4
 			)
 			`
 
-	_, err := b.db.Exec(
+	_, err := o.db.Exec(
 		ctx,
 		query,
 		id,
-		req.Title,
-		req.AuthorId,
-		req.CategoryId,
-		req.Price,
-		req.Stock,
-		req.Description,
+		req.UserId,
+		req.TotalAmount,
+		req.OrderStatus,
 	)
 	if err != nil {
 
-		b.log.Error("err on db CreateBook", logger.Error(err))
+		o.log.Error("err on db CreateOrder", logger.Error(err))
 		return nil, err
 	}
 
-	resp, err := b.GetBookById(context.Background(), &book_shop.GetByIdReq{Id: id.String()})
+	resp, err := o.GetOrderById(context.Background(), &book_shop.GetByIdReq{Id: id.String()})
 
 	if err != nil {
 
-		b.log.Error("err on db GetBookyById", logger.Error(err))
+		o.log.Error("err on db GetOrderById", logger.Error(err))
 		return nil, err
 	}
 
 	return resp, nil
 }
 
-func (b *BookRepo) GetBookById(ctx context.Context, req *book_shop.GetByIdReq) (*book_shop.Book, error) {
+func (o *orderRepo) GetOrderById(ctx context.Context, req *book_shop.GetByIdReq) (*book_shop.Order, error) {
 
-	var resp book_shop.Book
+	var resp book_shop.Order
 	qury := `
 		SELECT 
-			title,
-			author_id,
-			category_id,
-			price,
-			stock,
-			description
+			order_id,
+			user_id,
+			total_amount,
+			order_status 
 		FROM 
-			books
+			orders
 		WHERE
-			book_id = $1
+			order_id = $1
 	`
 
-	err := b.db.QueryRow(
+	err := o.db.QueryRow(
 		ctx,
 		qury,
 		req.Id,
 	).Scan(
-		&resp.Title,
-		&resp.AuthorId,
-		&resp.CategoryId,
-		&resp.Price,
-		&resp.Stock,
-		&resp.Description,
+		&resp.OrderId,
+		&resp.UserId,
+		&resp.TotalAmount,
+		&resp.OrderStatus,
+	
 	)
 
 	if err != nil {
 
-		b.log.Error("err on db GetBookById", logger.Error(err))
+		o.log.Error("err on db GetBookById", logger.Error(err))
 		return nil, err
 	}
 

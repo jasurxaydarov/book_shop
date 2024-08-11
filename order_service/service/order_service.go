@@ -9,57 +9,56 @@ import (
 	"github.com/saidamir98/udevs_pkg/logger"
 )
 
-type BookService struct {
+type OrderService struct {
 	storage storage.StorageRepoI
-	book_shop.UnimplementedBookServiceServer
+	book_shop.UnimplementedOrderServiceServer
 }
 
-func NewBookService(storage storage.StorageRepoI) *BookService {
+func NewOrderService(storage storage.StorageRepoI) *OrderService {
 
-	return &BookService{storage: storage}
+	return &OrderService{storage: storage}
 }
-func (b* BookService) CreateBook(ctx context.Context,req *book_shop.BookCreateReq) (*book_shop.Book, error){
+
+func (o *OrderService) CreateOrder(ctx context.Context, req *book_shop.OrderCreateReq) (*book_shop.Order, error) {
 
 	log:=logger.NewLogger("",logger.LevelDebug)
-	log.Debug("errrrrrrrrr")
-	resp, err := b.storage.GetBookRepo().CreateBook(ctx,req)
+
+	log.Debug("errrrrrrrrrrrrr")
 	
+	resp, err := o.storage.GetOrderRepo().CreateOrder(ctx, req)
+
 	if err != nil {
-	
+
 		fmt.Println(err)
 		return nil, err
 	}
-	
+
 	return resp, nil
 }
 
-func (b* BookService) GetBook(ctx context.Context,req *book_shop.GetByIdReq) (*book_shop.Book, error){
+func (o *OrderService) GetOrder(ctx context.Context, req *book_shop.GetByIdReq) (*book_shop.Order, error) {
 
-	log:=logger.NewLogger("",logger.LevelDebug)
-	log.Debug("errrrrrrrrr")
-	resp, err := b.storage.GetBookRepo().GetBookById(ctx,req)
-	
+	resp, err := o.storage.GetOrderRepo().GetOrderById(ctx, req)
+
 	if err != nil {
-	
+
 		fmt.Println(err)
 		return nil, err
 	}
-	
+
 	return resp, nil
 }
 
-func (b* BookService) DeleteBook(context.Context, *book_shop.DeleteReq) (*book_shop.Empty, error){
+func (o *OrderService) DeleteOrder(context.Context, *book_shop.DeleteReq) (*book_shop.Empty, error) {
 
-	return nil,nil
+	return nil, nil
 }
 
-func (b* BookService) GetBooks(context.Context, *book_shop.GetListReq) (*book_shop.BookGetListResp, error){
+func (o *OrderService) Getorders(context.Context, *book_shop.GetListReq) (*book_shop.OrderGetListResp, error) {
 
-	return nil,nil
+	return nil, nil
 }
-func (b* BookService) UpdateBook(context.Context, *book_shop.BookUpdateReq) (*book_shop.Book, error){
+func (o *OrderService) Updateorder(context.Context, *book_shop.OrderUpdateReq) (*book_shop.Order, error) {
 
-	return nil,nil
+	return nil, nil
 }
-
-
