@@ -50,6 +50,7 @@ func Api(o Options) *gin.Engine {
 
 	adm := api.Group("/adm")
 
+	adm.Use(middlewares.AuthMiddlewareAdmin())
 	{
 		// author
 		adm.POST("/auth", h.CreateAuth)

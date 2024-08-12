@@ -49,7 +49,7 @@ func AuthMiddlewareAdmin() gin.HandlerFunc {
 		}
 
 		if claim.UserRole != "admin" {
-			ctx.JSON(401, gin.H{"error": "your role isn't viwer "})
+			ctx.JSON(401, gin.H{"error": "your role isn't admin "})
 			ctx.Abort()
 		}
 
