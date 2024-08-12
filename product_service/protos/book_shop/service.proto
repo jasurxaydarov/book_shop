@@ -10,6 +10,8 @@ service User_service {
     rpc GetUsers(GetListReq)returns(UserGetListResp);
     rpc UpdateUser(UserUpdateReq)returns (User);
     rpc DeleteUser(DeleteReq)returns(Empty);
+    rpc CheckExists(Common)returns(CommonResp);
+
 
 }
 
@@ -45,4 +47,5 @@ service Product_service {
     rpc GetOrdered_Items(GetListReq)returns(OrderItemGetListResp);
     rpc UpdateOrdered_Item (OrderItemCreateReq) returns (OrderItem);
     rpc DeleteOrdered_Item(DeleteReq)returns(Empty);
+
 }

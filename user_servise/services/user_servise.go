@@ -30,8 +30,8 @@ func (u *UserService) CreateUser(ctx context.Context, req *book_shop.UserCreateR
 }
 
 func (u *UserService) GetUser(ctx context.Context, req *book_shop.GetByIdReq) (*book_shop.User, error) {
-	
-	resp, err := u.storage.GetUserRepo().GetUserById(ctx,req)
+
+	resp, err := u.storage.GetUserRepo().GetUserById(ctx, req)
 
 	if err != nil {
 		fmt.Println(err)
@@ -51,4 +51,29 @@ func (u *UserService) UpdateUser(context.Context, *book_shop.UserUpdateReq) (*bo
 func (u *UserService) DeleteUser(context.Context, *book_shop.DeleteReq) (*book_shop.Empty, error) {
 
 	return nil, nil
+}
+
+func (u *UserService) CheckExists(ctx context.Context, req *book_shop.Common) (*book_shop.CommonResp, error) {
+
+	resp, err := u.storage.GetUserRepo().IsExists(ctx,req)
+
+	if err != nil {
+
+		fmt.Println(err)
+		return nil, err
+	}
+	return resp, nil
+}
+
+
+func (u *UserService)UserLogin(ctx context.Context,req *book_shop.UserLogIn) (*book_shop.Clamis, error){
+	
+	resp, err := u.storage.GetUserRepo().UserLogin(ctx,req)
+
+	if err != nil {
+
+		fmt.Println(err)
+		return nil, err
+	}
+	return resp, nil
 }

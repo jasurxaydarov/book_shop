@@ -27,6 +27,8 @@ type UserServiceClient interface {
 	GetUsers(ctx context.Context, in *GetListReq, opts ...grpc.CallOption) (*UserGetListResp, error)
 	UpdateUser(ctx context.Context, in *UserUpdateReq, opts ...grpc.CallOption) (*User, error)
 	DeleteUser(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error)
+	CheckExists(ctx context.Context, in *Common, opts ...grpc.CallOption) (*CommonResp, error)
+	UserLogin(ctx context.Context, in *UserLogIn, opts ...grpc.CallOption) (*Clamis, error)
 }
 
 type userServiceClient struct {
@@ -82,6 +84,24 @@ func (c *userServiceClient) DeleteUser(ctx context.Context, in *DeleteReq, opts 
 	return out, nil
 }
 
+func (c *userServiceClient) CheckExists(ctx context.Context, in *Common, opts ...grpc.CallOption) (*CommonResp, error) {
+	out := new(CommonResp)
+	err := c.cc.Invoke(ctx, "/book_shop.User_service/CheckExists", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) UserLogin(ctx context.Context, in *UserLogIn, opts ...grpc.CallOption) (*Clamis, error) {
+	out := new(Clamis)
+	err := c.cc.Invoke(ctx, "/book_shop.User_service/UserLogin", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
@@ -91,6 +111,8 @@ type UserServiceServer interface {
 	GetUsers(context.Context, *GetListReq) (*UserGetListResp, error)
 	UpdateUser(context.Context, *UserUpdateReq) (*User, error)
 	DeleteUser(context.Context, *DeleteReq) (*Empty, error)
+	CheckExists(context.Context, *Common) (*CommonResp, error)
+	UserLogin(context.Context, *UserLogIn) (*Clamis, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -112,6 +134,12 @@ func (UnimplementedUserServiceServer) UpdateUser(context.Context, *UserUpdateReq
 }
 func (UnimplementedUserServiceServer) DeleteUser(context.Context, *DeleteReq) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
+}
+func (UnimplementedUserServiceServer) CheckExists(context.Context, *Common) (*CommonResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckExists not implemented")
+}
+func (UnimplementedUserServiceServer) UserLogin(context.Context, *UserLogIn) (*Clamis, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserLogin not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -216,6 +244,42 @@ func _UserService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_CheckExists_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Common)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).CheckExists(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.User_service/CheckExists",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).CheckExists(ctx, req.(*Common))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_UserLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserLogIn)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).UserLogin(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.User_service/UserLogin",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).UserLogin(ctx, req.(*UserLogIn))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -243,1119 +307,999 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "DeleteUser",
 			Handler:    _UserService_DeleteUser_Handler,
 		},
+		{
+			MethodName: "CheckExists",
+			Handler:    _UserService_CheckExists_Handler,
+		},
+		{
+			MethodName: "UserLogin",
+			Handler:    _UserService_UserLogin_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "service.proto",
 }
 
-// AuthServiceClient is the client API for AuthService service.
+// ProductServiceClient is the client API for ProductService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type AuthServiceClient interface {
+type ProductServiceClient interface {
 	CreateAuth(ctx context.Context, in *AuthorUpdateReq, opts ...grpc.CallOption) (*Author, error)
 	GetAuth(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*Author, error)
 	GetAuths(ctx context.Context, in *GetListReq, opts ...grpc.CallOption) (*AuthorGetListResp, error)
 	UpdateAuth(ctx context.Context, in *AuthorUpdateReq, opts ...grpc.CallOption) (*User, error)
 	DeleteAuth(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error)
-}
-
-type authServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewAuthServiceClient(cc grpc.ClientConnInterface) AuthServiceClient {
-	return &authServiceClient{cc}
-}
-
-func (c *authServiceClient) CreateAuth(ctx context.Context, in *AuthorUpdateReq, opts ...grpc.CallOption) (*Author, error) {
-	out := new(Author)
-	err := c.cc.Invoke(ctx, "/book_shop.Auth_service/CreateAuth", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *authServiceClient) GetAuth(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*Author, error) {
-	out := new(Author)
-	err := c.cc.Invoke(ctx, "/book_shop.Auth_service/GetAuth", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *authServiceClient) GetAuths(ctx context.Context, in *GetListReq, opts ...grpc.CallOption) (*AuthorGetListResp, error) {
-	out := new(AuthorGetListResp)
-	err := c.cc.Invoke(ctx, "/book_shop.Auth_service/GetAuths", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *authServiceClient) UpdateAuth(ctx context.Context, in *AuthorUpdateReq, opts ...grpc.CallOption) (*User, error) {
-	out := new(User)
-	err := c.cc.Invoke(ctx, "/book_shop.Auth_service/UpdateAuth", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *authServiceClient) DeleteAuth(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
-	err := c.cc.Invoke(ctx, "/book_shop.Auth_service/DeleteAuth", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// AuthServiceServer is the server API for AuthService service.
-// All implementations must embed UnimplementedAuthServiceServer
-// for forward compatibility
-type AuthServiceServer interface {
-	CreateAuth(context.Context, *AuthorUpdateReq) (*Author, error)
-	GetAuth(context.Context, *GetByIdReq) (*Author, error)
-	GetAuths(context.Context, *GetListReq) (*AuthorGetListResp, error)
-	UpdateAuth(context.Context, *AuthorUpdateReq) (*User, error)
-	DeleteAuth(context.Context, *DeleteReq) (*Empty, error)
-	mustEmbedUnimplementedAuthServiceServer()
-}
-
-// UnimplementedAuthServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedAuthServiceServer struct {
-}
-
-func (UnimplementedAuthServiceServer) CreateAuth(context.Context, *AuthorUpdateReq) (*Author, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateAuth not implemented")
-}
-func (UnimplementedAuthServiceServer) GetAuth(context.Context, *GetByIdReq) (*Author, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAuth not implemented")
-}
-func (UnimplementedAuthServiceServer) GetAuths(context.Context, *GetListReq) (*AuthorGetListResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAuths not implemented")
-}
-func (UnimplementedAuthServiceServer) UpdateAuth(context.Context, *AuthorUpdateReq) (*User, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateAuth not implemented")
-}
-func (UnimplementedAuthServiceServer) DeleteAuth(context.Context, *DeleteReq) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteAuth not implemented")
-}
-func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
-
-// UnsafeAuthServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AuthServiceServer will
-// result in compilation errors.
-type UnsafeAuthServiceServer interface {
-	mustEmbedUnimplementedAuthServiceServer()
-}
-
-func RegisterAuthServiceServer(s grpc.ServiceRegistrar, srv AuthServiceServer) {
-	s.RegisterService(&AuthService_ServiceDesc, srv)
-}
-
-func _AuthService_CreateAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AuthorUpdateReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AuthServiceServer).CreateAuth(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/book_shop.Auth_service/CreateAuth",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).CreateAuth(ctx, req.(*AuthorUpdateReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AuthService_GetAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetByIdReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AuthServiceServer).GetAuth(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/book_shop.Auth_service/GetAuth",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).GetAuth(ctx, req.(*GetByIdReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AuthService_GetAuths_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetListReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AuthServiceServer).GetAuths(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/book_shop.Auth_service/GetAuths",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).GetAuths(ctx, req.(*GetListReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AuthService_UpdateAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AuthorUpdateReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AuthServiceServer).UpdateAuth(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/book_shop.Auth_service/UpdateAuth",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).UpdateAuth(ctx, req.(*AuthorUpdateReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AuthService_DeleteAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AuthServiceServer).DeleteAuth(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/book_shop.Auth_service/DeleteAuth",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).DeleteAuth(ctx, req.(*DeleteReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var AuthService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "book_shop.Auth_service",
-	HandlerType: (*AuthServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "CreateAuth",
-			Handler:    _AuthService_CreateAuth_Handler,
-		},
-		{
-			MethodName: "GetAuth",
-			Handler:    _AuthService_GetAuth_Handler,
-		},
-		{
-			MethodName: "GetAuths",
-			Handler:    _AuthService_GetAuths_Handler,
-		},
-		{
-			MethodName: "UpdateAuth",
-			Handler:    _AuthService_UpdateAuth_Handler,
-		},
-		{
-			MethodName: "DeleteAuth",
-			Handler:    _AuthService_DeleteAuth_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "service.proto",
-}
-
-// CategoryServiceClient is the client API for CategoryService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type CategoryServiceClient interface {
 	CreateCategory(ctx context.Context, in *CategoryCreateReq, opts ...grpc.CallOption) (*Category, error)
 	GetCategory(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*Category, error)
 	GetCategories(ctx context.Context, in *GetListReq, opts ...grpc.CallOption) (*CategoryGetListResp, error)
 	UpdateCategory(ctx context.Context, in *CategoryUpdateReq, opts ...grpc.CallOption) (*Category, error)
 	DeleteCategory(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error)
-}
-
-type categoryServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewCategoryServiceClient(cc grpc.ClientConnInterface) CategoryServiceClient {
-	return &categoryServiceClient{cc}
-}
-
-func (c *categoryServiceClient) CreateCategory(ctx context.Context, in *CategoryCreateReq, opts ...grpc.CallOption) (*Category, error) {
-	out := new(Category)
-	err := c.cc.Invoke(ctx, "/book_shop.Category_service/CreateCategory", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *categoryServiceClient) GetCategory(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*Category, error) {
-	out := new(Category)
-	err := c.cc.Invoke(ctx, "/book_shop.Category_service/GetCategory", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *categoryServiceClient) GetCategories(ctx context.Context, in *GetListReq, opts ...grpc.CallOption) (*CategoryGetListResp, error) {
-	out := new(CategoryGetListResp)
-	err := c.cc.Invoke(ctx, "/book_shop.Category_service/GetCategories", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *categoryServiceClient) UpdateCategory(ctx context.Context, in *CategoryUpdateReq, opts ...grpc.CallOption) (*Category, error) {
-	out := new(Category)
-	err := c.cc.Invoke(ctx, "/book_shop.Category_service/UpdateCategory", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *categoryServiceClient) DeleteCategory(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
-	err := c.cc.Invoke(ctx, "/book_shop.Category_service/DeleteCategory", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// CategoryServiceServer is the server API for CategoryService service.
-// All implementations must embed UnimplementedCategoryServiceServer
-// for forward compatibility
-type CategoryServiceServer interface {
-	CreateCategory(context.Context, *CategoryCreateReq) (*Category, error)
-	GetCategory(context.Context, *GetByIdReq) (*Category, error)
-	GetCategories(context.Context, *GetListReq) (*CategoryGetListResp, error)
-	UpdateCategory(context.Context, *CategoryUpdateReq) (*Category, error)
-	DeleteCategory(context.Context, *DeleteReq) (*Empty, error)
-	mustEmbedUnimplementedCategoryServiceServer()
-}
-
-// UnimplementedCategoryServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedCategoryServiceServer struct {
-}
-
-func (UnimplementedCategoryServiceServer) CreateCategory(context.Context, *CategoryCreateReq) (*Category, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateCategory not implemented")
-}
-func (UnimplementedCategoryServiceServer) GetCategory(context.Context, *GetByIdReq) (*Category, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCategory not implemented")
-}
-func (UnimplementedCategoryServiceServer) GetCategories(context.Context, *GetListReq) (*CategoryGetListResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCategories not implemented")
-}
-func (UnimplementedCategoryServiceServer) UpdateCategory(context.Context, *CategoryUpdateReq) (*Category, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateCategory not implemented")
-}
-func (UnimplementedCategoryServiceServer) DeleteCategory(context.Context, *DeleteReq) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteCategory not implemented")
-}
-func (UnimplementedCategoryServiceServer) mustEmbedUnimplementedCategoryServiceServer() {}
-
-// UnsafeCategoryServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to CategoryServiceServer will
-// result in compilation errors.
-type UnsafeCategoryServiceServer interface {
-	mustEmbedUnimplementedCategoryServiceServer()
-}
-
-func RegisterCategoryServiceServer(s grpc.ServiceRegistrar, srv CategoryServiceServer) {
-	s.RegisterService(&CategoryService_ServiceDesc, srv)
-}
-
-func _CategoryService_CreateCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CategoryCreateReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CategoryServiceServer).CreateCategory(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/book_shop.Category_service/CreateCategory",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CategoryServiceServer).CreateCategory(ctx, req.(*CategoryCreateReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _CategoryService_GetCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetByIdReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CategoryServiceServer).GetCategory(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/book_shop.Category_service/GetCategory",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CategoryServiceServer).GetCategory(ctx, req.(*GetByIdReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _CategoryService_GetCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetListReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CategoryServiceServer).GetCategories(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/book_shop.Category_service/GetCategories",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CategoryServiceServer).GetCategories(ctx, req.(*GetListReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _CategoryService_UpdateCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CategoryUpdateReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CategoryServiceServer).UpdateCategory(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/book_shop.Category_service/UpdateCategory",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CategoryServiceServer).UpdateCategory(ctx, req.(*CategoryUpdateReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _CategoryService_DeleteCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CategoryServiceServer).DeleteCategory(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/book_shop.Category_service/DeleteCategory",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CategoryServiceServer).DeleteCategory(ctx, req.(*DeleteReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// CategoryService_ServiceDesc is the grpc.ServiceDesc for CategoryService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var CategoryService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "book_shop.Category_service",
-	HandlerType: (*CategoryServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "CreateCategory",
-			Handler:    _CategoryService_CreateCategory_Handler,
-		},
-		{
-			MethodName: "GetCategory",
-			Handler:    _CategoryService_GetCategory_Handler,
-		},
-		{
-			MethodName: "GetCategories",
-			Handler:    _CategoryService_GetCategories_Handler,
-		},
-		{
-			MethodName: "UpdateCategory",
-			Handler:    _CategoryService_UpdateCategory_Handler,
-		},
-		{
-			MethodName: "DeleteCategory",
-			Handler:    _CategoryService_DeleteCategory_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "service.proto",
-}
-
-// BookServiceClient is the client API for BookService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type BookServiceClient interface {
 	CreateBook(ctx context.Context, in *BookCreateReq, opts ...grpc.CallOption) (*Book, error)
 	GetBook(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*Book, error)
 	GetBooks(ctx context.Context, in *GetListReq, opts ...grpc.CallOption) (*BookGetListResp, error)
 	UpdateBook(ctx context.Context, in *BookUpdateReq, opts ...grpc.CallOption) (*Book, error)
 	DeleteBook(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error)
-}
-
-type bookServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewBookServiceClient(cc grpc.ClientConnInterface) BookServiceClient {
-	return &bookServiceClient{cc}
-}
-
-func (c *bookServiceClient) CreateBook(ctx context.Context, in *BookCreateReq, opts ...grpc.CallOption) (*Book, error) {
-	out := new(Book)
-	err := c.cc.Invoke(ctx, "/book_shop.Book_service/CreateBook", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *bookServiceClient) GetBook(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*Book, error) {
-	out := new(Book)
-	err := c.cc.Invoke(ctx, "/book_shop.Book_service/GetBook", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *bookServiceClient) GetBooks(ctx context.Context, in *GetListReq, opts ...grpc.CallOption) (*BookGetListResp, error) {
-	out := new(BookGetListResp)
-	err := c.cc.Invoke(ctx, "/book_shop.Book_service/GetBooks", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *bookServiceClient) UpdateBook(ctx context.Context, in *BookUpdateReq, opts ...grpc.CallOption) (*Book, error) {
-	out := new(Book)
-	err := c.cc.Invoke(ctx, "/book_shop.Book_service/UpdateBook", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *bookServiceClient) DeleteBook(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
-	err := c.cc.Invoke(ctx, "/book_shop.Book_service/DeleteBook", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// BookServiceServer is the server API for BookService service.
-// All implementations must embed UnimplementedBookServiceServer
-// for forward compatibility
-type BookServiceServer interface {
-	CreateBook(context.Context, *BookCreateReq) (*Book, error)
-	GetBook(context.Context, *GetByIdReq) (*Book, error)
-	GetBooks(context.Context, *GetListReq) (*BookGetListResp, error)
-	UpdateBook(context.Context, *BookUpdateReq) (*Book, error)
-	DeleteBook(context.Context, *DeleteReq) (*Empty, error)
-	mustEmbedUnimplementedBookServiceServer()
-}
-
-// UnimplementedBookServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedBookServiceServer struct {
-}
-
-func (UnimplementedBookServiceServer) CreateBook(context.Context, *BookCreateReq) (*Book, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateBook not implemented")
-}
-func (UnimplementedBookServiceServer) GetBook(context.Context, *GetByIdReq) (*Book, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetBook not implemented")
-}
-func (UnimplementedBookServiceServer) GetBooks(context.Context, *GetListReq) (*BookGetListResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetBooks not implemented")
-}
-func (UnimplementedBookServiceServer) UpdateBook(context.Context, *BookUpdateReq) (*Book, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateBook not implemented")
-}
-func (UnimplementedBookServiceServer) DeleteBook(context.Context, *DeleteReq) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteBook not implemented")
-}
-func (UnimplementedBookServiceServer) mustEmbedUnimplementedBookServiceServer() {}
-
-// UnsafeBookServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to BookServiceServer will
-// result in compilation errors.
-type UnsafeBookServiceServer interface {
-	mustEmbedUnimplementedBookServiceServer()
-}
-
-func RegisterBookServiceServer(s grpc.ServiceRegistrar, srv BookServiceServer) {
-	s.RegisterService(&BookService_ServiceDesc, srv)
-}
-
-func _BookService_CreateBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BookCreateReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BookServiceServer).CreateBook(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/book_shop.Book_service/CreateBook",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BookServiceServer).CreateBook(ctx, req.(*BookCreateReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _BookService_GetBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetByIdReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BookServiceServer).GetBook(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/book_shop.Book_service/GetBook",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BookServiceServer).GetBook(ctx, req.(*GetByIdReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _BookService_GetBooks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetListReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BookServiceServer).GetBooks(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/book_shop.Book_service/GetBooks",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BookServiceServer).GetBooks(ctx, req.(*GetListReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _BookService_UpdateBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BookUpdateReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BookServiceServer).UpdateBook(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/book_shop.Book_service/UpdateBook",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BookServiceServer).UpdateBook(ctx, req.(*BookUpdateReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _BookService_DeleteBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BookServiceServer).DeleteBook(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/book_shop.Book_service/DeleteBook",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BookServiceServer).DeleteBook(ctx, req.(*DeleteReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// BookService_ServiceDesc is the grpc.ServiceDesc for BookService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var BookService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "book_shop.Book_service",
-	HandlerType: (*BookServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "CreateBook",
-			Handler:    _BookService_CreateBook_Handler,
-		},
-		{
-			MethodName: "GetBook",
-			Handler:    _BookService_GetBook_Handler,
-		},
-		{
-			MethodName: "GetBooks",
-			Handler:    _BookService_GetBooks_Handler,
-		},
-		{
-			MethodName: "UpdateBook",
-			Handler:    _BookService_UpdateBook_Handler,
-		},
-		{
-			MethodName: "DeleteBook",
-			Handler:    _BookService_DeleteBook_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "service.proto",
-}
-
-// OrderServiceClient is the client API for OrderService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type OrderServiceClient interface {
 	CreateOrder(ctx context.Context, in *OrderCreateReq, opts ...grpc.CallOption) (*Order, error)
 	GetOrder(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*Order, error)
 	GetOrders(ctx context.Context, in *GetListReq, opts ...grpc.CallOption) (*OrderGetListResp, error)
 	Updateorder(ctx context.Context, in *OrderUpdateReq, opts ...grpc.CallOption) (*Order, error)
 	DeleteOrder(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error)
+	CreateOrdered_Item(ctx context.Context, in *OrderItemCreateReq, opts ...grpc.CallOption) (*OrderItem, error)
+	GetOrdered_Item(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*OrderItem, error)
+	GetOrdered_ItemByOrderId(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*OrderItemGetListResp, error)
+	GetOrdered_Items(ctx context.Context, in *GetListReq, opts ...grpc.CallOption) (*OrderItemGetListResp, error)
+	UpdateOrdered_Item(ctx context.Context, in *OrderItemCreateReq, opts ...grpc.CallOption) (*OrderItem, error)
+	DeleteOrdered_Item(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error)
 }
 
-type orderServiceClient struct {
+type productServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewOrderServiceClient(cc grpc.ClientConnInterface) OrderServiceClient {
-	return &orderServiceClient{cc}
+func NewProductServiceClient(cc grpc.ClientConnInterface) ProductServiceClient {
+	return &productServiceClient{cc}
 }
 
-func (c *orderServiceClient) CreateOrder(ctx context.Context, in *OrderCreateReq, opts ...grpc.CallOption) (*Order, error) {
-	out := new(Order)
-	err := c.cc.Invoke(ctx, "/book_shop.Order_service/CreateOrder", in, out, opts...)
+func (c *productServiceClient) CreateAuth(ctx context.Context, in *AuthorUpdateReq, opts ...grpc.CallOption) (*Author, error) {
+	out := new(Author)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/CreateAuth", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *orderServiceClient) GetOrder(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*Order, error) {
-	out := new(Order)
-	err := c.cc.Invoke(ctx, "/book_shop.Order_service/GetOrder", in, out, opts...)
+func (c *productServiceClient) GetAuth(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*Author, error) {
+	out := new(Author)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/GetAuth", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *orderServiceClient) GetOrders(ctx context.Context, in *GetListReq, opts ...grpc.CallOption) (*OrderGetListResp, error) {
-	out := new(OrderGetListResp)
-	err := c.cc.Invoke(ctx, "/book_shop.Order_service/GetOrders", in, out, opts...)
+func (c *productServiceClient) GetAuths(ctx context.Context, in *GetListReq, opts ...grpc.CallOption) (*AuthorGetListResp, error) {
+	out := new(AuthorGetListResp)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/GetAuths", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *orderServiceClient) Updateorder(ctx context.Context, in *OrderUpdateReq, opts ...grpc.CallOption) (*Order, error) {
-	out := new(Order)
-	err := c.cc.Invoke(ctx, "/book_shop.Order_service/Updateorder", in, out, opts...)
+func (c *productServiceClient) UpdateAuth(ctx context.Context, in *AuthorUpdateReq, opts ...grpc.CallOption) (*User, error) {
+	out := new(User)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/UpdateAuth", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *orderServiceClient) DeleteOrder(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error) {
+func (c *productServiceClient) DeleteAuth(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error) {
 	out := new(Empty)
-	err := c.cc.Invoke(ctx, "/book_shop.Order_service/DeleteOrder", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/DeleteAuth", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// OrderServiceServer is the server API for OrderService service.
-// All implementations must embed UnimplementedOrderServiceServer
+func (c *productServiceClient) CreateCategory(ctx context.Context, in *CategoryCreateReq, opts ...grpc.CallOption) (*Category, error) {
+	out := new(Category)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/CreateCategory", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) GetCategory(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*Category, error) {
+	out := new(Category)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/GetCategory", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) GetCategories(ctx context.Context, in *GetListReq, opts ...grpc.CallOption) (*CategoryGetListResp, error) {
+	out := new(CategoryGetListResp)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/GetCategories", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) UpdateCategory(ctx context.Context, in *CategoryUpdateReq, opts ...grpc.CallOption) (*Category, error) {
+	out := new(Category)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/UpdateCategory", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) DeleteCategory(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/DeleteCategory", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) CreateBook(ctx context.Context, in *BookCreateReq, opts ...grpc.CallOption) (*Book, error) {
+	out := new(Book)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/CreateBook", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) GetBook(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*Book, error) {
+	out := new(Book)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/GetBook", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) GetBooks(ctx context.Context, in *GetListReq, opts ...grpc.CallOption) (*BookGetListResp, error) {
+	out := new(BookGetListResp)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/GetBooks", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) UpdateBook(ctx context.Context, in *BookUpdateReq, opts ...grpc.CallOption) (*Book, error) {
+	out := new(Book)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/UpdateBook", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) DeleteBook(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/DeleteBook", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) CreateOrder(ctx context.Context, in *OrderCreateReq, opts ...grpc.CallOption) (*Order, error) {
+	out := new(Order)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/CreateOrder", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) GetOrder(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*Order, error) {
+	out := new(Order)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/GetOrder", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) GetOrders(ctx context.Context, in *GetListReq, opts ...grpc.CallOption) (*OrderGetListResp, error) {
+	out := new(OrderGetListResp)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/GetOrders", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) Updateorder(ctx context.Context, in *OrderUpdateReq, opts ...grpc.CallOption) (*Order, error) {
+	out := new(Order)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/Updateorder", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) DeleteOrder(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/DeleteOrder", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) CreateOrdered_Item(ctx context.Context, in *OrderItemCreateReq, opts ...grpc.CallOption) (*OrderItem, error) {
+	out := new(OrderItem)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/CreateOrdered_Item", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) GetOrdered_Item(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*OrderItem, error) {
+	out := new(OrderItem)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/GetOrdered_Item", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) GetOrdered_ItemByOrderId(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*OrderItemGetListResp, error) {
+	out := new(OrderItemGetListResp)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/GetOrdered_ItemByOrderId", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) GetOrdered_Items(ctx context.Context, in *GetListReq, opts ...grpc.CallOption) (*OrderItemGetListResp, error) {
+	out := new(OrderItemGetListResp)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/GetOrdered_Items", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) UpdateOrdered_Item(ctx context.Context, in *OrderItemCreateReq, opts ...grpc.CallOption) (*OrderItem, error) {
+	out := new(OrderItem)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/UpdateOrdered_Item", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *productServiceClient) DeleteOrdered_Item(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/book_shop.Product_service/DeleteOrdered_Item", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ProductServiceServer is the server API for ProductService service.
+// All implementations must embed UnimplementedProductServiceServer
 // for forward compatibility
-type OrderServiceServer interface {
+type ProductServiceServer interface {
+	CreateAuth(context.Context, *AuthorUpdateReq) (*Author, error)
+	GetAuth(context.Context, *GetByIdReq) (*Author, error)
+	GetAuths(context.Context, *GetListReq) (*AuthorGetListResp, error)
+	UpdateAuth(context.Context, *AuthorUpdateReq) (*User, error)
+	DeleteAuth(context.Context, *DeleteReq) (*Empty, error)
+	CreateCategory(context.Context, *CategoryCreateReq) (*Category, error)
+	GetCategory(context.Context, *GetByIdReq) (*Category, error)
+	GetCategories(context.Context, *GetListReq) (*CategoryGetListResp, error)
+	UpdateCategory(context.Context, *CategoryUpdateReq) (*Category, error)
+	DeleteCategory(context.Context, *DeleteReq) (*Empty, error)
+	CreateBook(context.Context, *BookCreateReq) (*Book, error)
+	GetBook(context.Context, *GetByIdReq) (*Book, error)
+	GetBooks(context.Context, *GetListReq) (*BookGetListResp, error)
+	UpdateBook(context.Context, *BookUpdateReq) (*Book, error)
+	DeleteBook(context.Context, *DeleteReq) (*Empty, error)
 	CreateOrder(context.Context, *OrderCreateReq) (*Order, error)
 	GetOrder(context.Context, *GetByIdReq) (*Order, error)
 	GetOrders(context.Context, *GetListReq) (*OrderGetListResp, error)
 	Updateorder(context.Context, *OrderUpdateReq) (*Order, error)
 	DeleteOrder(context.Context, *DeleteReq) (*Empty, error)
-	mustEmbedUnimplementedOrderServiceServer()
+	CreateOrdered_Item(context.Context, *OrderItemCreateReq) (*OrderItem, error)
+	GetOrdered_Item(context.Context, *GetByIdReq) (*OrderItem, error)
+	GetOrdered_ItemByOrderId(context.Context, *GetByIdReq) (*OrderItemGetListResp, error)
+	GetOrdered_Items(context.Context, *GetListReq) (*OrderItemGetListResp, error)
+	UpdateOrdered_Item(context.Context, *OrderItemCreateReq) (*OrderItem, error)
+	DeleteOrdered_Item(context.Context, *DeleteReq) (*Empty, error)
+	mustEmbedUnimplementedProductServiceServer()
 }
 
-// UnimplementedOrderServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedOrderServiceServer struct {
+// UnimplementedProductServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedProductServiceServer struct {
 }
 
-func (UnimplementedOrderServiceServer) CreateOrder(context.Context, *OrderCreateReq) (*Order, error) {
+func (UnimplementedProductServiceServer) CreateAuth(context.Context, *AuthorUpdateReq) (*Author, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateAuth not implemented")
+}
+func (UnimplementedProductServiceServer) GetAuth(context.Context, *GetByIdReq) (*Author, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAuth not implemented")
+}
+func (UnimplementedProductServiceServer) GetAuths(context.Context, *GetListReq) (*AuthorGetListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAuths not implemented")
+}
+func (UnimplementedProductServiceServer) UpdateAuth(context.Context, *AuthorUpdateReq) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAuth not implemented")
+}
+func (UnimplementedProductServiceServer) DeleteAuth(context.Context, *DeleteReq) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAuth not implemented")
+}
+func (UnimplementedProductServiceServer) CreateCategory(context.Context, *CategoryCreateReq) (*Category, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateCategory not implemented")
+}
+func (UnimplementedProductServiceServer) GetCategory(context.Context, *GetByIdReq) (*Category, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCategory not implemented")
+}
+func (UnimplementedProductServiceServer) GetCategories(context.Context, *GetListReq) (*CategoryGetListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCategories not implemented")
+}
+func (UnimplementedProductServiceServer) UpdateCategory(context.Context, *CategoryUpdateReq) (*Category, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateCategory not implemented")
+}
+func (UnimplementedProductServiceServer) DeleteCategory(context.Context, *DeleteReq) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteCategory not implemented")
+}
+func (UnimplementedProductServiceServer) CreateBook(context.Context, *BookCreateReq) (*Book, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateBook not implemented")
+}
+func (UnimplementedProductServiceServer) GetBook(context.Context, *GetByIdReq) (*Book, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBook not implemented")
+}
+func (UnimplementedProductServiceServer) GetBooks(context.Context, *GetListReq) (*BookGetListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBooks not implemented")
+}
+func (UnimplementedProductServiceServer) UpdateBook(context.Context, *BookUpdateReq) (*Book, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateBook not implemented")
+}
+func (UnimplementedProductServiceServer) DeleteBook(context.Context, *DeleteReq) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteBook not implemented")
+}
+func (UnimplementedProductServiceServer) CreateOrder(context.Context, *OrderCreateReq) (*Order, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateOrder not implemented")
 }
-func (UnimplementedOrderServiceServer) GetOrder(context.Context, *GetByIdReq) (*Order, error) {
+func (UnimplementedProductServiceServer) GetOrder(context.Context, *GetByIdReq) (*Order, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrder not implemented")
 }
-func (UnimplementedOrderServiceServer) GetOrders(context.Context, *GetListReq) (*OrderGetListResp, error) {
+func (UnimplementedProductServiceServer) GetOrders(context.Context, *GetListReq) (*OrderGetListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrders not implemented")
 }
-func (UnimplementedOrderServiceServer) Updateorder(context.Context, *OrderUpdateReq) (*Order, error) {
+func (UnimplementedProductServiceServer) Updateorder(context.Context, *OrderUpdateReq) (*Order, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Updateorder not implemented")
 }
-func (UnimplementedOrderServiceServer) DeleteOrder(context.Context, *DeleteReq) (*Empty, error) {
+func (UnimplementedProductServiceServer) DeleteOrder(context.Context, *DeleteReq) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteOrder not implemented")
 }
-func (UnimplementedOrderServiceServer) mustEmbedUnimplementedOrderServiceServer() {}
+func (UnimplementedProductServiceServer) CreateOrdered_Item(context.Context, *OrderItemCreateReq) (*OrderItem, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateOrdered_Item not implemented")
+}
+func (UnimplementedProductServiceServer) GetOrdered_Item(context.Context, *GetByIdReq) (*OrderItem, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOrdered_Item not implemented")
+}
+func (UnimplementedProductServiceServer) GetOrdered_ItemByOrderId(context.Context, *GetByIdReq) (*OrderItemGetListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOrdered_ItemByOrderId not implemented")
+}
+func (UnimplementedProductServiceServer) GetOrdered_Items(context.Context, *GetListReq) (*OrderItemGetListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOrdered_Items not implemented")
+}
+func (UnimplementedProductServiceServer) UpdateOrdered_Item(context.Context, *OrderItemCreateReq) (*OrderItem, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateOrdered_Item not implemented")
+}
+func (UnimplementedProductServiceServer) DeleteOrdered_Item(context.Context, *DeleteReq) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteOrdered_Item not implemented")
+}
+func (UnimplementedProductServiceServer) mustEmbedUnimplementedProductServiceServer() {}
 
-// UnsafeOrderServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to OrderServiceServer will
+// UnsafeProductServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ProductServiceServer will
 // result in compilation errors.
-type UnsafeOrderServiceServer interface {
-	mustEmbedUnimplementedOrderServiceServer()
+type UnsafeProductServiceServer interface {
+	mustEmbedUnimplementedProductServiceServer()
 }
 
-func RegisterOrderServiceServer(s grpc.ServiceRegistrar, srv OrderServiceServer) {
-	s.RegisterService(&OrderService_ServiceDesc, srv)
+func RegisterProductServiceServer(s grpc.ServiceRegistrar, srv ProductServiceServer) {
+	s.RegisterService(&ProductService_ServiceDesc, srv)
 }
 
-func _OrderService_CreateOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ProductService_CreateAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuthorUpdateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).CreateAuth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Product_service/CreateAuth",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).CreateAuth(ctx, req.(*AuthorUpdateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_GetAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetByIdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).GetAuth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Product_service/GetAuth",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).GetAuth(ctx, req.(*GetByIdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_GetAuths_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).GetAuths(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Product_service/GetAuths",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).GetAuths(ctx, req.(*GetListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_UpdateAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuthorUpdateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).UpdateAuth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Product_service/UpdateAuth",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).UpdateAuth(ctx, req.(*AuthorUpdateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_DeleteAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).DeleteAuth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Product_service/DeleteAuth",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).DeleteAuth(ctx, req.(*DeleteReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_CreateCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CategoryCreateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).CreateCategory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Product_service/CreateCategory",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).CreateCategory(ctx, req.(*CategoryCreateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_GetCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetByIdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).GetCategory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Product_service/GetCategory",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).GetCategory(ctx, req.(*GetByIdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_GetCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).GetCategories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Product_service/GetCategories",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).GetCategories(ctx, req.(*GetListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_UpdateCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CategoryUpdateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).UpdateCategory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Product_service/UpdateCategory",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).UpdateCategory(ctx, req.(*CategoryUpdateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_DeleteCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).DeleteCategory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Product_service/DeleteCategory",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).DeleteCategory(ctx, req.(*DeleteReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_CreateBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BookCreateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).CreateBook(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Product_service/CreateBook",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).CreateBook(ctx, req.(*BookCreateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_GetBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetByIdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).GetBook(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Product_service/GetBook",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).GetBook(ctx, req.(*GetByIdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_GetBooks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).GetBooks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Product_service/GetBooks",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).GetBooks(ctx, req.(*GetListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_UpdateBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BookUpdateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).UpdateBook(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Product_service/UpdateBook",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).UpdateBook(ctx, req.(*BookUpdateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_DeleteBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).DeleteBook(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Product_service/DeleteBook",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).DeleteBook(ctx, req.(*DeleteReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_CreateOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(OrderCreateReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServiceServer).CreateOrder(ctx, in)
+		return srv.(ProductServiceServer).CreateOrder(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/book_shop.Order_service/CreateOrder",
+		FullMethod: "/book_shop.Product_service/CreateOrder",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).CreateOrder(ctx, req.(*OrderCreateReq))
+		return srv.(ProductServiceServer).CreateOrder(ctx, req.(*OrderCreateReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderService_GetOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ProductService_GetOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetByIdReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServiceServer).GetOrder(ctx, in)
+		return srv.(ProductServiceServer).GetOrder(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/book_shop.Order_service/GetOrder",
+		FullMethod: "/book_shop.Product_service/GetOrder",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).GetOrder(ctx, req.(*GetByIdReq))
+		return srv.(ProductServiceServer).GetOrder(ctx, req.(*GetByIdReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderService_GetOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ProductService_GetOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetListReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServiceServer).GetOrders(ctx, in)
+		return srv.(ProductServiceServer).GetOrders(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/book_shop.Order_service/GetOrders",
+		FullMethod: "/book_shop.Product_service/GetOrders",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).GetOrders(ctx, req.(*GetListReq))
+		return srv.(ProductServiceServer).GetOrders(ctx, req.(*GetListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderService_Updateorder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ProductService_Updateorder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(OrderUpdateReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServiceServer).Updateorder(ctx, in)
+		return srv.(ProductServiceServer).Updateorder(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/book_shop.Order_service/Updateorder",
+		FullMethod: "/book_shop.Product_service/Updateorder",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).Updateorder(ctx, req.(*OrderUpdateReq))
+		return srv.(ProductServiceServer).Updateorder(ctx, req.(*OrderUpdateReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderService_DeleteOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ProductService_DeleteOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServiceServer).DeleteOrder(ctx, in)
+		return srv.(ProductServiceServer).DeleteOrder(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/book_shop.Order_service/DeleteOrder",
+		FullMethod: "/book_shop.Product_service/DeleteOrder",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).DeleteOrder(ctx, req.(*DeleteReq))
+		return srv.(ProductServiceServer).DeleteOrder(ctx, req.(*DeleteReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// OrderService_ServiceDesc is the grpc.ServiceDesc for OrderService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var OrderService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "book_shop.Order_service",
-	HandlerType: (*OrderServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "CreateOrder",
-			Handler:    _OrderService_CreateOrder_Handler,
-		},
-		{
-			MethodName: "GetOrder",
-			Handler:    _OrderService_GetOrder_Handler,
-		},
-		{
-			MethodName: "GetOrders",
-			Handler:    _OrderService_GetOrders_Handler,
-		},
-		{
-			MethodName: "Updateorder",
-			Handler:    _OrderService_Updateorder_Handler,
-		},
-		{
-			MethodName: "DeleteOrder",
-			Handler:    _OrderService_DeleteOrder_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "service.proto",
-}
-
-// OrderedItemServiceClient is the client API for OrderedItemService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type OrderedItemServiceClient interface {
-	CreateBook(ctx context.Context, in *OrderItemCreateReq, opts ...grpc.CallOption) (*OrderItem, error)
-	GetBook(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*OrderItem, error)
-	GetBooks(ctx context.Context, in *GetListReq, opts ...grpc.CallOption) (*OrderItemGetListResp, error)
-	DeleteBook(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error)
-}
-
-type orderedItemServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewOrderedItemServiceClient(cc grpc.ClientConnInterface) OrderedItemServiceClient {
-	return &orderedItemServiceClient{cc}
-}
-
-func (c *orderedItemServiceClient) CreateBook(ctx context.Context, in *OrderItemCreateReq, opts ...grpc.CallOption) (*OrderItem, error) {
-	out := new(OrderItem)
-	err := c.cc.Invoke(ctx, "/book_shop.OrderedItem_service/CreateBook", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *orderedItemServiceClient) GetBook(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*OrderItem, error) {
-	out := new(OrderItem)
-	err := c.cc.Invoke(ctx, "/book_shop.OrderedItem_service/GetBook", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *orderedItemServiceClient) GetBooks(ctx context.Context, in *GetListReq, opts ...grpc.CallOption) (*OrderItemGetListResp, error) {
-	out := new(OrderItemGetListResp)
-	err := c.cc.Invoke(ctx, "/book_shop.OrderedItem_service/GetBooks", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *orderedItemServiceClient) DeleteBook(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
-	err := c.cc.Invoke(ctx, "/book_shop.OrderedItem_service/DeleteBook", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// OrderedItemServiceServer is the server API for OrderedItemService service.
-// All implementations must embed UnimplementedOrderedItemServiceServer
-// for forward compatibility
-type OrderedItemServiceServer interface {
-	CreateBook(context.Context, *OrderItemCreateReq) (*OrderItem, error)
-	GetBook(context.Context, *GetByIdReq) (*OrderItem, error)
-	GetBooks(context.Context, *GetListReq) (*OrderItemGetListResp, error)
-	DeleteBook(context.Context, *DeleteReq) (*Empty, error)
-	mustEmbedUnimplementedOrderedItemServiceServer()
-}
-
-// UnimplementedOrderedItemServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedOrderedItemServiceServer struct {
-}
-
-func (UnimplementedOrderedItemServiceServer) CreateBook(context.Context, *OrderItemCreateReq) (*OrderItem, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateBook not implemented")
-}
-func (UnimplementedOrderedItemServiceServer) GetBook(context.Context, *GetByIdReq) (*OrderItem, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetBook not implemented")
-}
-func (UnimplementedOrderedItemServiceServer) GetBooks(context.Context, *GetListReq) (*OrderItemGetListResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetBooks not implemented")
-}
-func (UnimplementedOrderedItemServiceServer) DeleteBook(context.Context, *DeleteReq) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteBook not implemented")
-}
-func (UnimplementedOrderedItemServiceServer) mustEmbedUnimplementedOrderedItemServiceServer() {}
-
-// UnsafeOrderedItemServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to OrderedItemServiceServer will
-// result in compilation errors.
-type UnsafeOrderedItemServiceServer interface {
-	mustEmbedUnimplementedOrderedItemServiceServer()
-}
-
-func RegisterOrderedItemServiceServer(s grpc.ServiceRegistrar, srv OrderedItemServiceServer) {
-	s.RegisterService(&OrderedItemService_ServiceDesc, srv)
-}
-
-func _OrderedItemService_CreateBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ProductService_CreateOrdered_Item_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(OrderItemCreateReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderedItemServiceServer).CreateBook(ctx, in)
+		return srv.(ProductServiceServer).CreateOrdered_Item(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/book_shop.OrderedItem_service/CreateBook",
+		FullMethod: "/book_shop.Product_service/CreateOrdered_Item",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderedItemServiceServer).CreateBook(ctx, req.(*OrderItemCreateReq))
+		return srv.(ProductServiceServer).CreateOrdered_Item(ctx, req.(*OrderItemCreateReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderedItemService_GetBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ProductService_GetOrdered_Item_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetByIdReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderedItemServiceServer).GetBook(ctx, in)
+		return srv.(ProductServiceServer).GetOrdered_Item(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/book_shop.OrderedItem_service/GetBook",
+		FullMethod: "/book_shop.Product_service/GetOrdered_Item",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderedItemServiceServer).GetBook(ctx, req.(*GetByIdReq))
+		return srv.(ProductServiceServer).GetOrdered_Item(ctx, req.(*GetByIdReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderedItemService_GetBooks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ProductService_GetOrdered_ItemByOrderId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetByIdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).GetOrdered_ItemByOrderId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Product_service/GetOrdered_ItemByOrderId",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).GetOrdered_ItemByOrderId(ctx, req.(*GetByIdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_GetOrdered_Items_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetListReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderedItemServiceServer).GetBooks(ctx, in)
+		return srv.(ProductServiceServer).GetOrdered_Items(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/book_shop.OrderedItem_service/GetBooks",
+		FullMethod: "/book_shop.Product_service/GetOrdered_Items",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderedItemServiceServer).GetBooks(ctx, req.(*GetListReq))
+		return srv.(ProductServiceServer).GetOrdered_Items(ctx, req.(*GetListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderedItemService_DeleteBook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ProductService_UpdateOrdered_Item_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OrderItemCreateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).UpdateOrdered_Item(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.Product_service/UpdateOrdered_Item",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).UpdateOrdered_Item(ctx, req.(*OrderItemCreateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ProductService_DeleteOrdered_Item_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderedItemServiceServer).DeleteBook(ctx, in)
+		return srv.(ProductServiceServer).DeleteOrdered_Item(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/book_shop.OrderedItem_service/DeleteBook",
+		FullMethod: "/book_shop.Product_service/DeleteOrdered_Item",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderedItemServiceServer).DeleteBook(ctx, req.(*DeleteReq))
+		return srv.(ProductServiceServer).DeleteOrdered_Item(ctx, req.(*DeleteReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// OrderedItemService_ServiceDesc is the grpc.ServiceDesc for OrderedItemService service.
+// ProductService_ServiceDesc is the grpc.ServiceDesc for ProductService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var OrderedItemService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "book_shop.OrderedItem_service",
-	HandlerType: (*OrderedItemServiceServer)(nil),
+var ProductService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "book_shop.Product_service",
+	HandlerType: (*ProductServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "CreateAuth",
+			Handler:    _ProductService_CreateAuth_Handler,
+		},
+		{
+			MethodName: "GetAuth",
+			Handler:    _ProductService_GetAuth_Handler,
+		},
+		{
+			MethodName: "GetAuths",
+			Handler:    _ProductService_GetAuths_Handler,
+		},
+		{
+			MethodName: "UpdateAuth",
+			Handler:    _ProductService_UpdateAuth_Handler,
+		},
+		{
+			MethodName: "DeleteAuth",
+			Handler:    _ProductService_DeleteAuth_Handler,
+		},
+		{
+			MethodName: "CreateCategory",
+			Handler:    _ProductService_CreateCategory_Handler,
+		},
+		{
+			MethodName: "GetCategory",
+			Handler:    _ProductService_GetCategory_Handler,
+		},
+		{
+			MethodName: "GetCategories",
+			Handler:    _ProductService_GetCategories_Handler,
+		},
+		{
+			MethodName: "UpdateCategory",
+			Handler:    _ProductService_UpdateCategory_Handler,
+		},
+		{
+			MethodName: "DeleteCategory",
+			Handler:    _ProductService_DeleteCategory_Handler,
+		},
+		{
 			MethodName: "CreateBook",
-			Handler:    _OrderedItemService_CreateBook_Handler,
+			Handler:    _ProductService_CreateBook_Handler,
 		},
 		{
 			MethodName: "GetBook",
-			Handler:    _OrderedItemService_GetBook_Handler,
+			Handler:    _ProductService_GetBook_Handler,
 		},
 		{
 			MethodName: "GetBooks",
-			Handler:    _OrderedItemService_GetBooks_Handler,
+			Handler:    _ProductService_GetBooks_Handler,
+		},
+		{
+			MethodName: "UpdateBook",
+			Handler:    _ProductService_UpdateBook_Handler,
 		},
 		{
 			MethodName: "DeleteBook",
-			Handler:    _OrderedItemService_DeleteBook_Handler,
+			Handler:    _ProductService_DeleteBook_Handler,
+		},
+		{
+			MethodName: "CreateOrder",
+			Handler:    _ProductService_CreateOrder_Handler,
+		},
+		{
+			MethodName: "GetOrder",
+			Handler:    _ProductService_GetOrder_Handler,
+		},
+		{
+			MethodName: "GetOrders",
+			Handler:    _ProductService_GetOrders_Handler,
+		},
+		{
+			MethodName: "Updateorder",
+			Handler:    _ProductService_Updateorder_Handler,
+		},
+		{
+			MethodName: "DeleteOrder",
+			Handler:    _ProductService_DeleteOrder_Handler,
+		},
+		{
+			MethodName: "CreateOrdered_Item",
+			Handler:    _ProductService_CreateOrdered_Item_Handler,
+		},
+		{
+			MethodName: "GetOrdered_Item",
+			Handler:    _ProductService_GetOrdered_Item_Handler,
+		},
+		{
+			MethodName: "GetOrdered_ItemByOrderId",
+			Handler:    _ProductService_GetOrdered_ItemByOrderId_Handler,
+		},
+		{
+			MethodName: "GetOrdered_Items",
+			Handler:    _ProductService_GetOrdered_Items_Handler,
+		},
+		{
+			MethodName: "UpdateOrdered_Item",
+			Handler:    _ProductService_UpdateOrdered_Item_Handler,
+		},
+		{
+			MethodName: "DeleteOrdered_Item",
+			Handler:    _ProductService_DeleteOrdered_Item_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/jasurxaydarov/book_shop/modles"
+	"github.com/jasurxaydarov/book_shop/genproto/book_shop"
 )
 
 type Claim struct {
@@ -16,7 +16,7 @@ type Claim struct {
 
 var secretJwtKey = []byte("Shit")
 
-func GenerateJWT(claim modles.Clamis) (string, error) {
+func GenerateJWT(claim book_shop.Clamis) (string, error) {
 
 	experationTime := time.Now().Add(1 * time.Hour)
 

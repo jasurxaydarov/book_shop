@@ -2,10 +2,13 @@ package postgres
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jasurxaydarov/book_shop/genproto/book_shop"
+	"github.com/jasurxaydarov/book_shop/pkg/db/helpers"
 	"github.com/saidamir98/udevs_pkg/logger"
 )
 
@@ -20,7 +23,7 @@ func NewUserRepo(db *pgx.Conn, log logger.LoggerI) UserRepoI {
 }
 
 func (u *UserRepo) CreateUser(ctx context.Context, req *book_shop.UserCreateReq) (*book_shop.User, error) {
-u.log.Debug("aaaaaaaaaaaaaaaaa")
+	u.log.Debug("aaaaaaaaaaaaaaaaa")
 	id := uuid.New()
 	query := `
 		INSERT INTO
@@ -30,7 +33,7 @@ u.log.Debug("aaaaaaaaaaaaaaaaa")
 				email, 
 				password,
 				full_name,
-				is_admin
+				user_role
 			)VALUES(
 				$1,$2,$3,$4,$5,$6
 			)
@@ -44,7 +47,7 @@ u.log.Debug("aaaaaaaaaaaaaaaaa")
 		req.Email,
 		req.Password,
 		req.Fullname,
-		req.IsAdmin,
+		req.UserRole,
 	)
 	if err != nil {
 
@@ -74,7 +77,7 @@ func (u *UserRepo) GetUserById(ctx context.Context, req *book_shop.GetByIdReq) (
 				email, 
 				password,
 				full_name,
-				is_admin
+				user_role
 		FROM 
 			users 
 		WHERE
@@ -91,8 +94,7 @@ func (u *UserRepo) GetUserById(ctx context.Context, req *book_shop.GetByIdReq) (
 		&resp.Email,
 		&resp.Password,
 		&resp.Fullname,
-		&resp.IsAdmin,
-	
+		&resp.UserRole,
 	)
 
 	if err != nil {
@@ -102,4 +104,52 @@ func (u *UserRepo) GetUserById(ctx context.Context, req *book_shop.GetByIdReq) (
 	}
 
 	return &resp, nil
+}
+
+func (u *UserRepo) IsExists(ctx context.Context, req *book_shop.Common) (*book_shop.CommonResp, error) {
+	var isExists bool
+
+	query := fmt.Sprintf("SELECT EXISTS (SELECT 1 FROM %s WHERE %s = '%s')", req.TableName, req.ColumnName, req.Expvalue)
+
+	err := u.db.QueryRow(ctx, query).Scan(&isExists)
+
+	if err != nil {
+		u.log.Error("error on CheckExists", logger.Error(err))
+		return &book_shop.CommonResp{IsExists: false}, nil
+	}
+
+	return &book_shop.CommonResp{IsExists: isExists}, nil
+}
+
+
+
+func (u *UserRepo)UserLogin(ctx context.Context, req *book_shop.UserLogIn)(*book_shop.Clamis,error){
+
+	var viwerId,gmail,hashPassword,userRole string
+
+	query:=`
+		SELECT 
+			user_id,
+			email,
+			password
+			user_role
+		FROM
+			users
+		WHERE	
+			username =$1
+	`
+
+	err:=u.db.QueryRow(ctx,query,req.Username).Scan(&viwerId,&gmail,&hashPassword,&userRole)
+
+	if err != nil{
+		return nil,err
+	}
+
+	if !helpers.CompareHashPassword(hashPassword,req.Password){
+		return nil,errors.New("password is incorrect")
+	}
+
+
+	return &book_shop.Clamis{UserId: viwerId,UserRole:userRole}, nil
+
 }

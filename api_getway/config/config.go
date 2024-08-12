@@ -1,100 +1,96 @@
 package config
 
 import (
-	"fmt"
-	"log"
-	"os"
+ "fmt"
+ "os"
 
-	"github.com/joho/godotenv"
-	"github.com/spf13/cast"
+ "github.com/joho/godotenv"
+ "github.com/spf13/cast"
 )
 
 const (
-	// DebugMode indicates service mode is debug.
-	DebugMode string = "debug"
-	// TestMode indicates service mode is test.
-	TestMode string = "test"
-	// ReleaseMode indicates service mode is release.
-	ReleaseMode string = "release"
+ // DebugMode indicates service mode is debug.
+ DebugMode string = "debug"
+ // TestMode indicates service mode is test.
+ TestMode string = "test"
+ // ReleaseMode indicates service mode is release.
+ ReleaseMode string = "release"
 )
 
-type AppConfig struct {
-	ProjectName string
-	Version     string
-	ServiceName string
-	Host        string
-	RpcPort     string
-	Environment string
+type GeneralConfig struct {
+ AppName     string
+ Environment string // debug,
+ Version     string
+ HTTPPort    string
+ HTTPScheme  string
+ SignInKey   string
 }
 
-type PgSQLConfig struct {
-	Username string
-	Password string
-	Host     string
-	Port     int
-	Database string
+type PgConfig struct {
+ Username     string
+ Password     string
+ Host         string
+ Port         int
+ DatabaseName string
 }
 
-type Services struct {
+type RedisConfig struct {
+ Username     string
+ Password     string
+ Host         string
+ Port         int
+ DBIndex      int
 }
 
 type Config struct {
-	AppConfig   AppConfig
-	PgSQLConfig PgSQLConfig
+ GeneralConfig GeneralConfig
+ PgConfig      PgConfig
+ RedisConfig   RedisConfig
+}
+
+func NewConfig() Config {
+ return Config{GeneralConfig: GeneralConfig{AppName: "book_shop"}}
 }
 
 func Load() Config {
 
-	err := godotenv.Load("./.env")
-	if err == nil {
-		log.Println("configs loaded from .env")
-	}
+ if err := godotenv.Load(); err != nil {
+  fmt.Println("No .env file found")
+ }
 
-	var (
-		appConfig   AppConfig
-		pgSQLConfig PgSQLConfig
-	)
+ var config = NewConfig()
 
-	//app
-	appConfig.ProjectName = cast.ToString(getDefaultValue("PROJECT_NAME", "book_shop"))
-	appConfig.Version = cast.ToString(getDefaultValue("VERSION", "1.0.0"))
+ // general configs
+ config.GeneralConfig.Environment = cast.ToString(getOrReturnDefaultValue("ENVIRONMENT", DebugMode))
+ config.GeneralConfig.Version = cast.ToString(getOrReturnDefaultValue("VERSION", "1.0"))
+ config.GeneralConfig.HTTPPort = cast.ToString(getOrReturnDefaultValue("HTTP_PORT", ":8080"))
+ config.GeneralConfig.HTTPScheme = cast.ToString(getOrReturnDefaultValue("HTTP_SCHEME", "http"))
+ config.GeneralConfig.SignInKey = cast.ToString(getOrReturnDefaultValue("SIGN_IN_KEY", "ASJDKLFJASasdFASE2SD2dafa"))
 
-	// db config: "postgres://postgres:%21%28%28%281001%23%21gO@54.93.101.96:5432/product_service"
-	pgSQLConfig.Username = cast.ToString(getDefaultValue("DB_USER", "jasur"))
-	pgSQLConfig.Password = cast.ToString(getDefaultValue("DB_USER_PASSWORD", "1001"))
-	pgSQLConfig.Host = cast.ToString(getDefaultValue("DB_HOST", "localhost"))
-	pgSQLConfig.Port = cast.ToInt(getDefaultValue("DB_PORT", 5432))
-	pgSQLConfig.Database = cast.ToString(getDefaultValue("DB_NAME", "book_shop"))
+ // postgres config
+ config.PgConfig.Username = cast.ToString(getOrReturnDefaultValue("POSTGRES_USER", "jasur"))
+ config.PgConfig.Password = cast.ToString(getOrReturnDefaultValue("POSTGRES_PASSWORD", "1001"))
+ config.PgConfig.Host = cast.ToString(getOrReturnDefaultValue("POSTGRES_HOST", "localhost"))
+ config.PgConfig.Port = cast.ToInt(getOrReturnDefaultValue("POSTGRES_PORT", 5432))
+ config.PgConfig.DatabaseName = cast.ToString(getOrReturnDefaultValue("POSTGRES_DATABASE", config.GeneralConfig.AppName))
 
-	//service
-	appConfig.ServiceName = cast.ToString(getDefaultValue("SERVICE_NAME", "grpc_todo"))
-	appConfig.RpcPort = cast.ToString(getDefaultValue("SERVICE_HOST", "54.93.101.96"))
-	appConfig.RpcPort = cast.ToString(getDefaultValue("RPC_PORT", ":8081"))
-	appConfig.Environment = "debug"
+ // redis config
+ config.RedisConfig.Host = cast.ToString(getOrReturnDefaultValue("REDIS_HOST", "localhost"))
+ config.RedisConfig.Port = cast.ToInt(getOrReturnDefaultValue("REDIS_PORT", 6379))
+ config.RedisConfig.DBIndex = cast.ToInt(getOrReturnDefaultValue("REDIS_DB_INDEX", 0))
 
-	return Config{
-		AppConfig:   appConfig,
-		PgSQLConfig: pgSQLConfig,
-	}
+ return config
 
 }
 
-func GetPgURL() string {
-	username := cast.ToString(getDefaultValue("DB_USER", "jasur"))
-	password := cast.ToString(getDefaultValue("DB_USER_PASSWORD", "1001"))
-	host := cast.ToString(getDefaultValue("DB_HOST", "0.0.0.0"))
-	port := cast.ToInt(getDefaultValue("DB_PORT", 5432))
-	database := cast.ToString(getDefaultValue("DB_NAME", "book_shop"))
+// urlExample := "postgres://username:password@localhost:5432/database_name"
+func getOrReturnDefaultValue(key string, defaultValue interface{}) interface{} {
 
-	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s", username, password, host, port, database)
-}
+ val, exists := os.LookupEnv(key)
 
-func getDefaultValue(key string, defaultValue interface{}) interface{} {
+ if exists {
+  return val
+ }
 
-	val, exists := os.LookupEnv(key)
-	if exists {
-		return val
-	}
-
-	return defaultValue
+ return defaultValue
 }

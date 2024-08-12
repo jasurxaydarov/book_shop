@@ -19,6 +19,18 @@ message GetListReq {
     int32 page = 2;
 }
 
+message Common {
+    string table_name = 1;
+    string column_name = 2;
+    string expvalue = 3;
+
+}
+
+message CommonResp {
+   bool is_exists = 1;
+
+}
+
 message User {
     string user_id = 1;
     string username = 2;
@@ -185,3 +197,5 @@ message OrderItemGetListResp {
     repeated OrderItem order_item = 1;
     int32 count = 2;
 }
+
+
