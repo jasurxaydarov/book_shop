@@ -28,6 +28,7 @@ type UserServiceClient interface {
 	UpdateUser(ctx context.Context, in *UserUpdateReq, opts ...grpc.CallOption) (*User, error)
 	DeleteUser(ctx context.Context, in *DeleteReq, opts ...grpc.CallOption) (*Empty, error)
 	CheckExists(ctx context.Context, in *Common, opts ...grpc.CallOption) (*CommonResp, error)
+	UserLogin(ctx context.Context, in *UserLogIn, opts ...grpc.CallOption) (*Clamis, error)
 }
 
 type userServiceClient struct {
@@ -92,6 +93,15 @@ func (c *userServiceClient) CheckExists(ctx context.Context, in *Common, opts ..
 	return out, nil
 }
 
+func (c *userServiceClient) UserLogin(ctx context.Context, in *UserLogIn, opts ...grpc.CallOption) (*Clamis, error) {
+	out := new(Clamis)
+	err := c.cc.Invoke(ctx, "/book_shop.User_service/UserLogin", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
@@ -102,6 +112,7 @@ type UserServiceServer interface {
 	UpdateUser(context.Context, *UserUpdateReq) (*User, error)
 	DeleteUser(context.Context, *DeleteReq) (*Empty, error)
 	CheckExists(context.Context, *Common) (*CommonResp, error)
+	UserLogin(context.Context, *UserLogIn) (*Clamis, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -126,6 +137,9 @@ func (UnimplementedUserServiceServer) DeleteUser(context.Context, *DeleteReq) (*
 }
 func (UnimplementedUserServiceServer) CheckExists(context.Context, *Common) (*CommonResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckExists not implemented")
+}
+func (UnimplementedUserServiceServer) UserLogin(context.Context, *UserLogIn) (*Clamis, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserLogin not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -248,6 +262,24 @@ func _UserService_CheckExists_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_UserLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserLogIn)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).UserLogin(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/book_shop.User_service/UserLogin",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).UserLogin(ctx, req.(*UserLogIn))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -278,6 +310,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckExists",
 			Handler:    _UserService_CheckExists_Handler,
+		},
+		{
+			MethodName: "UserLogin",
+			Handler:    _UserService_UserLogin_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

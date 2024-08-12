@@ -37,7 +37,7 @@ message User {
     string email = 3;
     string password = 4;
     string fullname = 5;
-    bool is_admin = 6;           // Remove [default = false], default is false in proto3
+    string user_role = 6;          // Remove [default = false], default is false in proto3
     string created_at = 7;
     string updated_at = 8;
     string deleted_at = 9;
@@ -48,9 +48,15 @@ message UserCreateReq {
     string email = 2;
     string password = 3;
     string fullname = 4;
-    bool is_admin = 5;           // Remove [default = false]
+    string user_role = 5;          // Remove [default = false], default is false in proto3
+    string otp=6;
 }
 
+
+message UserLogIn {
+    string username = 1;
+    string password = 2;
+}
 message UserGetListResp {
     repeated User users = 2;
     int32 count = 1;
@@ -198,4 +204,28 @@ message OrderItemGetListResp {
     int32 count = 2;
 }
 
+message Clamis{
+    string user_id=1;
+    string user_role =2;
+}
 
+message CheckUser{
+    string email=1;
+}
+message OtpData{
+    string otp=1;
+    string email =2;
+}
+
+message CheckOtpResp{
+    string is_right=1;
+}
+
+message AuthResp{
+    string access_token=1;
+}
+
+message CheckExists{
+    string status=1;
+    bool is_exists =2;
+}
